@@ -24,7 +24,18 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "Allow Reactiv' Translate to access your microphone",
+        "UIBackgroundModes": [
+          "audio"
+        ]
+      },
+    },
+    "android": {
+      "permissions": [
+        "RECORD_AUDIO"
+      ]
     }
   }
 }
