@@ -30,7 +30,7 @@
         "UIBackgroundModes": [
           "audio"
         ]
-      },
+      }
     },
     "android": {
       "permissions": [
