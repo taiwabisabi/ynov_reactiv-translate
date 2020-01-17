@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { withTheme, IconButton, Colors } from 'react-native-paper';
+import { withTheme, IconButton } from 'react-native-paper';
+import styles from '../styles';
 
 import { Audio } from 'expo-av';
 import * as Permissions from 'expo-permissions';
@@ -41,7 +42,7 @@ const audioSettings = {
   staysActiveInBackground: true,
 };
 
-class HomeScreen extends React.Component {
+class HomeScreen extends Component {
   constructor(props) {
     super(props);
     this.recording = null;
@@ -159,14 +160,14 @@ class HomeScreen extends React.Component {
     return (
       <View style={[styles.container, { backgroundColor: this.props.theme.colors.surface }]}>
         <IconButton
-          color={Colors.red500}
+          color={this.props.theme.colors.primary}
           size={100}
           icon={this.state.isRecording ? 'microphone-off' : 'microphone'}
           animated="true"
           onPress={() => this.onRecordingPressed()} />
 
         <IconButton
-          color={Colors.red500}
+          color={this.props.theme.colors.primary}
           size={100}
           icon={this.state.isPlaying ? 'pause' : 'play'} 
           animated="true"
@@ -177,12 +178,3 @@ class HomeScreen extends React.Component {
 }
 
 export default withTheme(HomeScreen);
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
