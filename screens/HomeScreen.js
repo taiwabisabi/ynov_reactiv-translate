@@ -12,10 +12,9 @@ import { connect } from "react-redux";
 
 import { Audio } from "expo-av";
 import * as Permissions from "expo-permissions";
-import * as FileSystem from "expo-file-system";
-import * as Network from "expo-network";
+import * as Speech from 'expo-speech';
 
-import axios from "axios";
+import ApiTranslate from '../services/ApiTranslate';
 
 import styles from "../styles";
 import {
@@ -28,14 +27,13 @@ import {
 } from "../redux/actions/settingsActions";
 
 const recordingOptions = {
-  // android not currently in use, but parameters are required
   android: {
-    extension: ".m4a",
-    outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_MPEG_4,
-    audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_AAC,
+    extension: '.amr',
+    outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_AMR_WB,
+    audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_AMR_WB,
     sampleRate: 44100,
-    numberOfChannels: 2,
-    bitRate: 128000
+    numberOfChannels: 1,
+    bitRate: 128000,
   },
   ios: {
     extension: ".wav",
@@ -62,23 +60,21 @@ const audioSettings = {
 class HomeScreen extends Component {
   constructor(props) {
     super(props);
+    this.ApiTranslate = new ApiTranslate();
     this.recording = null;
     this.sound = null;
+    this.speech = null;
     this.state = {
       haveRecordingPermissions: false,
       isRecording: false,
-      isPlaying: false,
+      isSoundPlaying: false,
+      isSpeechPlaying: false,
       isFetching: false,
-      muted: false,
-      shouldCorrectPitch: true,
-      volume: 1.0,
-      rate: 1.0,
-      results: false
+      results: false,
     };
   }
 
-  async beginRecording() {
-    // Begin reconding
+  _beginRecording = async () => {
     const recording = new Audio.Recording();
     try {
       await Audio.setAudioModeAsync(audioSettings);
@@ -93,83 +89,82 @@ class HomeScreen extends Component {
     }
   }
 
-  async stopRecording() {
-    // Stop recording
-    this.setState({
-      isRecording: false
-    });
+  _stopRecording = async () => {
+    this.setState({ isRecording: false });
     try {
       await this.recording.stopAndUnloadAsync();
     } catch (error) {
       console.log(error);
     }
-
+    
     this.setState({ isFetching: true });
-
-    // Get File URi and encoding to Base64
-    const { uri } = await FileSystem.getInfoAsync(this.recording.getURI());
-    const formData = new FormData();
-    formData.append("audio", {
-      uri,
-      type: "audio/x-wav",
-      name: "speech2text"
-    });
-    formData.append("from", this.props.settings[0].code);
-    formData.append("to", this.props.settings[1].code);
-
-    // Make api call to get translation
+    const uri = this.recording.getURI();
     try {
-      const ip = await Network.getIpAddressAsync();
-      console.log(ip);
-      const { data: results } = await axios.post(
-        `http://${ip}:3000/`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data"
-          }
-        }
-      );
+      const { data: results } = await this.ApiTranslate.getTranslate(uri, this.props.settings);
       this.setState({ isFetching: false });
       this.setState({ results });
     } catch (error) {
       console.log(error);
+      this.setState({ isFetching: false });
     }
 
-    // Create sound player
-    await Audio.setAudioModeAsync(audioSettings);
-    const { sound } = await this.recording.createNewLoadedSoundAsync({
-      isLooping: false,
-      isMuted: this.state.muted,
-      volume: this.state.volume,
-      rate: this.state.rate,
-      shouldCorrectPitch: this.state.shouldCorrectPitch
-    });
-    this.sound = sound;
-    this.onPlayPausePressed();
+    await this._createSound(uri);
+    this._onSpeechPlayStopPressed();
   }
 
-  onRecordingPressed = () => {
-    if (this.state.isRecording) {
-      this.stopRecording();
-    } else {
-      this.beginRecording();
+  _createSound = async uri => {
+    const soundObject = new Audio.Sound();
+    try {
+      await soundObject.loadAsync({uri});
+      soundObject.setIsLoopingAsync(true);
+      this.sound = soundObject;
+    } catch (error) {
+      console.log(error);
     }
   };
 
-  onPlayPausePressed = () => {
+  _onRecordingPressed = () => {
+    if (this.state.isRecording) {
+      this._stopRecording();
+    } else {
+      this._beginRecording();
+    }
+  };
+
+  _onSoundPlayStopPressed = () => {
     if (this.sound != null) {
-      if (this.state.isPlaying) {
-        this.sound.pauseAsync();
+      if (this.state.isSoundPlaying) {
+        this.sound.stopAsync();
         this.setState({
-          isPlaying: false
+          isSoundPlaying: false
         });
       } else {
         this.sound.playAsync();
         this.setState({
-          isPlaying: true
+          isSoundPlaying: true
         });
       }
+    }
+  };
+
+  _onSpeechPlayStopPressed = () => {
+    if (this.state.isSpeechPlaying) {
+      Speech.stop();
+      this.setState({
+        isSpeechPlaying: false
+      });
+    } else {
+      Speech.speak(this.state.results.to.text, {
+        onDone: () => {
+          Speech.stop();
+          this.setState({
+            isSpeechPlaying: false
+          });
+        }
+      });
+      this.setState({
+        isSpeechPlaying: true
+      });
     }
   };
 
@@ -192,9 +187,20 @@ class HomeScreen extends Component {
         <NavigationEvents onWillFocus={() => this.props.getSettings()} />
         <View style={[styles.containerFixed]}>
           <View style={[styles.containerDivide]}>
-            <Chip style={{ alignSelf: "flex-start" }} icon="text-to-speech">
-              {this.props.settings[0] && this.props.settings[0].name}
-            </Chip>
+            <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+              <Chip icon="text-to-speech">
+                {this.props.settings[0] && this.props.settings[0].name}
+              </Chip>
+              {
+                this.state.results && (
+                  <Chip 
+                    icon={this.state.isSoundPlaying ? "stop" : "play"}
+                    onPress={this._onSoundPlayStopPressed}>
+                    {this.state.isSoundPlaying ? "Stop" : "Play"}
+                  </Chip>
+                )
+              }
+            </View>
             <View style={{ padding: 10, alignItems: "flex-start" }}>
               {this.state.isFetching ? (
                 <ActivityIndicator
@@ -223,12 +229,23 @@ class HomeScreen extends Component {
                 </Paragraph>
               )}
             </View>
-            <Chip
-              style={{ alignSelf: "flex-start" }}
-              icon="tooltip-text-outline"
-            >
-              {this.props.settings[1] && this.props.settings[1].name}
-            </Chip>
+            <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+              <Chip
+                style={{ alignSelf: "flex-start" }}
+                icon="tooltip-text-outline"
+              >
+                {this.props.settings[1] && this.props.settings[1].name}
+              </Chip>
+              {
+                this.state.results && (
+                  <Chip 
+                    icon={this.state.isSpeechPlaying ? "stop" : "play"}
+                    onPress={this._onSpeechPlayStopPressed}>
+                    {this.state.isSpeechPlaying ? "Stop" : "Play"}
+                  </Chip>
+                )
+              }
+            </View>
           </View>
         </View>
         <IconButton
@@ -236,7 +253,7 @@ class HomeScreen extends Component {
           size={100}
           icon={this.state.isRecording ? "microphone-off" : "microphone"}
           animated="true"
-          onPress={() => this.onRecordingPressed()}
+          onPress={() => this._onRecordingPressed()}
         />
       </View>
     );
