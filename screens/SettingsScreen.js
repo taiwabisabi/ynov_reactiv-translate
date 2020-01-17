@@ -1,13 +1,14 @@
 import React, { Component } from "react";
-import { View } from "react-native";
+import { View, ScrollView } from "react-native";
 import {
   withTheme,
   Appbar,
   Title,
   Button,
-  Menu,
   Caption,
   Badge,
+  Dialog,
+  Portal
 } from "react-native-paper";
 import { connect } from "react-redux";
 
@@ -60,56 +61,72 @@ class SettingsScreen extends Component {
           <Badge style={[styles.margin, { paddingHorizontal: 10 }]}>
             Valeurs par défaut
           </Badge>
-          <Menu
-            visible={this.state.from}
-            contentStyle={styles.menuSettingContent}
-            onDismiss={() => this._closeMenu("from")}
-            anchor={
-              <View style={styles.margin}>
-                <Caption>Langue de départ</Caption>
-                <Button
-                  icon="text-to-speech"
-                  mode="contained"
-                  onPress={() => this._openMenu("from")}
-                >
-                  {this.props.settings[0] && this.props.settings[0].name}
-                </Button>
-              </View>
-            }
-          >
-            {googleSpeechToTextApiAvailableLanguages.map(({ code, name }) => (
-              <Menu.Item
-                key={code}
-                title={name}
-                onPress={() => this._changeLanguages(0, { code, name }, "from")}
-              />
-            ))}
-          </Menu>
-          <Menu
-            visible={this.state.to}
-            contentStyle={styles.menuSettingContent}
-            onDismiss={() => this._closeMenu("to")}
-            anchor={
-              <View style={styles.margin}>
-                <Caption>Langue d'arrivée</Caption>
-                <Button
-                  icon="tooltip-text-outline"
-                  mode="contained"
-                  onPress={() => this._openMenu("to")}
-                >
-                  {this.props.settings[1] && this.props.settings[1].name}
-                </Button>
-              </View>
-            }
-          >
-            {googleTranslateApiAvailableLanguages.map(({ code, name }) => (
-              <Menu.Item
-                key={code}
-                title={name}
-                onPress={() => this._changeLanguages(1, { code, name }, "to")}
-              />
-            ))}
-          </Menu>
+          <View style={styles.margin}>
+            <Caption>Langue de départ</Caption>
+            <Button
+              icon="text-to-speech"
+              mode="contained"
+              onPress={() => this._openMenu("from")}
+            >
+              {this.props.settings[0] && this.props.settings[0].name}
+            </Button>
+          </View>
+          <View style={styles.margin}>
+            <Caption>Langue d'arrivée</Caption>
+            <Button
+              icon="tooltip-text-outline"
+              mode="contained"
+              onPress={() => this._openMenu("to")}
+            >
+              {this.props.settings[1] && this.props.settings[1].name}
+            </Button>
+          </View>
+          <Portal>
+            <Dialog
+              visible={this.state.from}
+              onDismiss={() => this._closeMenu("from")}
+            >
+              <Dialog.Actions>
+                <ScrollView style={{ height: 500 }}>
+                  {googleSpeechToTextApiAvailableLanguages.map(
+                    ({ code, name }) => (
+                      <Button
+                        key={code}
+                        onPress={() =>
+                          this._changeLanguages(0, { code, name }, "from")
+                        }
+                      >
+                        {name}
+                      </Button>
+                    )
+                  )}
+                </ScrollView>
+              </Dialog.Actions>
+            </Dialog>
+          </Portal>
+          <Portal>
+            <Dialog
+              visible={this.state.to}
+              onDismiss={() => this._closeMenu("to")}
+            >
+              <Dialog.Actions>
+                <ScrollView style={{ height: 500 }}>
+                  {googleTranslateApiAvailableLanguages.map(
+                    ({ code, name }) => (
+                      <Button
+                        key={code}
+                        onPress={() =>
+                          this._changeLanguages(1, { code, name }, "to")
+                        }
+                      >
+                        {name}
+                      </Button>
+                    )
+                  )}
+                </ScrollView>
+              </Dialog.Actions>
+            </Dialog>
+          </Portal>
         </View>
       </View>
     );
