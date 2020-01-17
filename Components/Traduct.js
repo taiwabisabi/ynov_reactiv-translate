@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import { StyleSheet, View, TextInput, Button, FlatList, Text, ActivityIndicator  } from 'react-native'
+import { StyleSheet, View, TextInput, Button, Text, ActivityIndicator  } from 'react-native'
 import traductions from '../Helpers/TraductData'
 import TraductItem from './TraductItem';
 
@@ -20,15 +20,22 @@ class Traduct extends Component {
 // tarduction du text
     traduire(){
         this.setState({is_loading:true})
-        //this.setState.traduction
-
+        
+        return(
+            <View style={styles.loading_container}>
+                <Text>Traduction : Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+                        Aenean ac pretium diam. Morbi accumsan mollis finibus. 
+                        Vivamus sem massa, vestibulum sit amet vehicula at, bibendum sed turpis. In in tellus sit amet dui blandit.  
+                        </Text>
+            </View>
+        )
 
         this.setState({is_loading:false})
     }
 
     //recupération de la valeur du textInput dans state
     textATraduire(text){
-        this.text_entre = text
+        this.searchedText = text 
     }
 
     chargement(){
@@ -41,32 +48,24 @@ class Traduct extends Component {
         }
     }
     // voir la totalité d'une traduction 
-    displayDetailTraduction = (id) => {
+  /*  displayDetailTraduction = (id) => {
         console.log("Id de la traduction : " + id)
         console.log(this.props)
         // la props navigation vient de la la stak navigation 
         // parametre 2 facultatif pour transmettre id de la traduction
         this.props.navigation.navigate("TraductDetail",{id:id})
-    }
+    }*/
 
     render(){
         return(
             <View style={styles.view}>
                 
                 <TextInput 
-                    onSubmitEditing={()=>traduire()}
-                    onChangeText={(text) => textATraduire(text)}
+                    onSubmitEditing={()=>this.traduire()}
+                    onChangeText={(text) => this.textATraduire(text)}
                     placeholder="Saisir texte" style={styles.textipunt} multiline={true} numberOfLines={5}></TextInput>
                 <Button style={styles.btn_traduct} title="Traduction" onPress={() => this.traduire()}></Button>
 
-                <FlatList
-                    data={traductions}
-                    onEndReachedThreshold={0.5}
-                    onEndReached={() => console.log("onEndReached")}
-                    keyExtractor={(item) => item.id.toString()}
-                    renderItem={({item}) =><TraductItem traduction={item}
-                    displayDetailTraduction={this.displayDetailTraduction}/>}
-                />
 
                 {this.chargement()}
             </View>

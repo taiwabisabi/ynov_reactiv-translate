@@ -6,6 +6,7 @@ import { createMaterialBottomTabNavigator } from 'react-navigation-material-bott
 import Traduct from '../Components/Traduct'
 import TraductDetail from '../Components/TraductDetail'
 import Historique from '../Components/Historique'
+import Reglages from '../Components/Reglages'
 
 
 const TraductStackNavigator = createStackNavigator(
@@ -23,7 +24,8 @@ const TraductStackNavigator = createStackNavigator(
         navigationOptions: {
         title: 'Detail traduction'
         }
-    }
+    },
+    
 });
 
 
@@ -35,6 +37,9 @@ const TraductTabNavigator = createMaterialBottomTabNavigator({
     },
     Historique:{
         screen: Historique
+    },
+    Reglages:{
+        screen: Reglages
     }
 
 })
