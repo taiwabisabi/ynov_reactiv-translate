@@ -7,6 +7,7 @@ export default StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: Constants.statusBarHeight,
   },
   containerAppBar: {
     flex: 1,
@@ -14,10 +15,22 @@ export default StyleSheet.create({
     marginTop: Constants.statusBarHeight,
     paddingTop: 60
   },
+  containerFixed: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+  },
+  containerDivide: {
+    flex: 1,
+    padding: 20,
+  },  
   top: {
     position: 'absolute',
     left: 0,
     right: 0,
+    top: 0,
     alignItems: 'center',
     justifyContent: 'center',
   },
