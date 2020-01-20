@@ -23,8 +23,11 @@ import {
 } from "../availableLanguages";
 import {
   getStorageSettings,
-  setStorageSettings
+  setStorageSettings,
 } from "../redux/actions/settingsActions";
+import {
+  setStorageHistory
+} from "../redux/actions/historyActions";
 
 const recordingOptions = {
   android: {
@@ -96,13 +99,14 @@ class HomeScreen extends Component {
     } catch (error) {
       console.log(error);
     }
-    
+
     this.setState({ isFetching: true });
     const uri = this.recording.getURI();
     try {
       const { data: results } = await this.ApiTranslate.getTranslate(uri, this.props.settings);
       this.setState({ isFetching: false });
       this.setState({ results });
+      this.props.setStorageHistory(results)
     } catch (error) {
       console.log(error);
       this.setState({ isFetching: false });
@@ -193,7 +197,7 @@ class HomeScreen extends Component {
               </Chip>
               {
                 this.state.results && (
-                  <Chip 
+                  <Chip
                     icon={this.state.isSoundPlaying ? "stop" : "play"}
                     onPress={this._onSoundPlayStopPressed}>
                     {this.state.isSoundPlaying ? "Stop" : "Play"}
@@ -238,7 +242,7 @@ class HomeScreen extends Component {
               </Chip>
               {
                 this.state.results && (
-                  <Chip 
+                  <Chip
                     icon={this.state.isSpeechPlaying ? "stop" : "play"}
                     onPress={this._onSpeechPlayStopPressed}>
                     {this.state.isSpeechPlaying ? "Stop" : "Play"}
@@ -269,7 +273,8 @@ const mapStateToProps = ({ settingsReducer }) => {
 const mapDispatchtoProps = dispatch => {
   return {
     getSettings: () => dispatch(getStorageSettings()),
-    setSettings: settings => dispatch(setStorageSettings(settings))
+    setSettings: settings => dispatch(setStorageSettings(settings)),
+    setStorageHistory: history => dispatch(setStorageHistory(history))
   };
 };
 
