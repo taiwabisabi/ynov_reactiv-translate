@@ -9,10 +9,11 @@ class HistoryScreen extends Component {
         return this.props.history.map((e, index) => {
             return <List.Item
                 key={index}
+                titleStyle={[ {color: this.props.theme.colors.primary} ]}
                 title={e.from.text}
-                descriptionNumberOfLines={3}
-                description={e.to.text +'\n'+ e.from.lang.slice(0, 2) + ' -> ' + e.to.lang.slice(0, 2)}
-                left={() => <List.Icon icon="folder" />}
+                descriptionNumberOfLines={4}
+                description={e.to.text +'\n'+ e.from.lang.slice(0, 2) + ' -> ' + e.to.lang.slice(0, 2) + '\n' + e.dateTimeTranslation}
+                left={() => <List.Icon icon="translate" />}
             />
         });
     }

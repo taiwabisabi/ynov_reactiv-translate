@@ -106,7 +106,8 @@ class HomeScreen extends Component {
       const { data: results } = await this.ApiTranslate.getTranslate(uri, this.props.settings);
       this.setState({ isFetching: false });
       this.setState({ results });
-      this.props.setStorageHistory(results)
+      let dateTimeTranslation = new Date();
+      this.props.setStorageHistory({...results, dateTimeTranslation})
     } catch (error) {
       console.log(error);
       this.setState({ isFetching: false });
