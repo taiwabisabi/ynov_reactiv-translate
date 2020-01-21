@@ -40,7 +40,7 @@ class HistoryScreen extends Component {
                     <Title>History</Title>
                 </Appbar>
                 <View>
-                    <Button onPress={this._showDialog}>Nombres de résultats : {this.state.value}</Button>
+                    <Button onPress={this._showDialog}>Afficher par : {this.state.value}</Button>
 
                     <Portal>
                         <Dialog visible={this.state.visible} onDismiss={this._hideDialog}>
