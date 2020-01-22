@@ -10,7 +10,7 @@ import {
   Badge,
   Divider,
   Text,
-  Headline, 
+  Headline,
   Caption
 } from "react-native-paper";
 import moment from "moment";
@@ -60,11 +60,14 @@ class HistoryScreen extends Component {
         <Appbar style={styles.top}>
           <Title>Historique</Title>
         </Appbar>
-        <ScrollView style={styles.padding}>
+        <ScrollView style={[
+          styles.padding,
+          { marginBottom: 20 }
+        ]}>
         {
-          this.props.history.length > 0 
-            ? <ListCard list={this.props.history} /> 
-            : <Subheading>Vore historique est vide.</Subheading> 
+          this.props.history.length > 0
+            ? <ListCard list={this.props.history} />
+            : <Subheading>Vore historique est vide.</Subheading>
         }
         </ScrollView>
       </View>
