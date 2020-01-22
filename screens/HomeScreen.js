@@ -224,8 +224,6 @@ class HomeScreen extends Component {
   }
 
   render() {
-      console.log(this.props, '________________--------')
-      console.log(styles, 'STYLE________________--------')
     return (
       <View
         style={[
