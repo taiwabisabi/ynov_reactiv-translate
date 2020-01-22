@@ -20,7 +20,7 @@ import { getStorageHistory } from "../redux/actions/historyActions";
 
 const ListCard = props => (
   props.list.map((item, i) => (
-    <View key={i} style={{ marginBottom: 15 }}>
+    <View key={i} style={{ marginBottom: 25 }}>
       <Caption>{ moment(item.dateTimestamp).format('[Le] Do MMMM YYYY [à] h:mm:ss') }</Caption>
       <Card>
         <Card.Content>
@@ -62,7 +62,6 @@ class HistoryScreen extends Component {
         </Appbar>
         <ScrollView style={[
           styles.padding,
-          { marginBottom: 20 }
         ]}>
         {
           this.props.history.length > 0
