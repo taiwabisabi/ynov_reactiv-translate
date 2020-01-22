@@ -116,8 +116,8 @@ class HomeScreen extends Component {
       this.setState({ results });
       this.props.setStorageHistory(
         { ...results, dateTimestamp: +new Date() },
-        this.state.overSettings[2]
-      );
+        this.props.settings[2]
+        );
     } catch (error) {
       console.log(error);
       this._reset();
@@ -201,9 +201,14 @@ class HomeScreen extends Component {
     if (this.state.isSpeechPlaying) this._onSpeechPlayStopPressed();
   };
 
+  _onWillFocus = () => {
+    this.props.getSettings();
+    this.setState({ overSettings: this.props.settings });
+  }
+
   async componentDidMount() {
     this.props.getSettings();
-    this.setState({ overSettings: this.props.settings })
+    this.setState({ overSettings: this.props.settings });
     const res = await Permissions.askAsync(Permissions.AUDIO_RECORDING);
     this.setState({
       haveRecordingPermissions: res.status === "granted"
@@ -218,7 +223,7 @@ class HomeScreen extends Component {
           { backgroundColor: this.props.theme.colors.surface }
         ]}
       >
-        <NavigationEvents onWillFocus={() => this.props.getSettings()} />
+        <NavigationEvents onWillFocus={() => this._onWillFocus()} />
         <View style={[styles.containerFixed]}>
           <View style={[styles.containerDivide]}>
             <View
@@ -376,7 +381,7 @@ const mapDispatchtoProps = dispatch => {
   return {
     getSettings: () => dispatch(getStorageSettings()),
     setSettings: settings => dispatch(setStorageSettings(settings)),
-    setStorageHistory: history => dispatch(setStorageHistory(history))
+    setStorageHistory: (history, max) => dispatch(setStorageHistory(history, max))
   };
 };
 
