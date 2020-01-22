@@ -1,0 +1,20 @@
+Hardy Milalu
+Josué Drack
+Valentin Leymonie
+Huu-Tai Le
+
+
+# Hardy 
+Gestion de l'API 
+
+# Josué 
+Gestion de la navigation (React Navigation)
+
+# Valentin
+Gestion de l'API
+Gestion de l'historique
+
+# Tai
+Gestion de l'accueil
+Gestion des réglages
+Gestion du système d'écoute micro & audio
