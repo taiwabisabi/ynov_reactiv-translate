@@ -380,24 +380,25 @@ class HomeScreen extends Component {
             />
             <Provider>
                 <Portal>
+                    <Modal
+                        visible={this.state.visibleModal}
+                        onDismiss={this._hideModal}
+                        contentContainerStyle={{padding: 25, backgroundColor: 'rgba(0, 0, 0, 0.6)'}}
+                    >
+                        <Text style={[styles.modalText, { marginTop: 50, fontSize: 26, color: this.props.theme.colors.primary}]}>Pour commencer</Text>
+                        <Text style={styles.modalText }>1. Appuyez sur le micro pour lancer l'enregistrement</Text>
+                        <Text style={styles.modalText }>2. Ré-appuyez sur le micro une fois que vous avez fini de parler pour terminer l'enregistrement</Text>
+
+                        <Text style={[styles.modalText, { marginTop: 50, fontSize: 26, color: this.props.theme.colors.primary}]}>Tool Tip</Text>
+                        <Text style={styles.modalText }>Vous pouvez choisir directement vos langues depuis l'écran d'accueil, cliquez dessus pour voir le menu de choix apparaitre</Text>
+                        <Text style={styles.modalText }>Appuyez prolongé sur un de ces menus pour remettre les valeurs par défaut</Text>
+                    </Modal>
                     <Button
-                        style={{ backgroundColor: this.props.theme.colors.primary, marginHorizontal: 80, marginTop: 200}}
+                        style={{ backgroundColor: this.props.theme.colors.primary, marginHorizontal: 80, marginTop: 175}}
                         onPress={this._showModal}
                     >
                         Comment ça marche ?
                     </Button>
-                    <Modal
-                        visible={this.state.visibleModal}
-                        onDismiss={this._hideModal}
-                    >
-                        <Text style={[styles.modalText, { marginTop: 50, fontSize: 26}]}>Pour commencer</Text>
-                        <Text style={styles.modalText }>1. Appuyez sur le micro pour lancer l'enregistrement</Text>
-                        <Text style={styles.modalText }>2. Ré-appuyez sur le micro une fois que vous avez fini de parler pour terminer l'enregistrement</Text>
-
-                        <Text style={[styles.modalText, { marginTop: 50, fontSize: 26}]}>Tool Tip</Text>
-                        <Text style={styles.modalText }>Vous pouvez choisir directement vos langues depuis l'écran d'accueil, cliquez dessus pour voir le menu de choix apparaitre</Text>
-                        <Text style={styles.modalText }>Appuyez prolongé sur un de ces menus pour remettre les valeurs par défaut</Text>
-                    </Modal>
                 </Portal>
             </Provider>
       </View>
