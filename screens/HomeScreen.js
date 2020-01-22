@@ -10,7 +10,10 @@ import {
   Dialog,
   Portal,
   Button,
-  Headline
+  Headline,
+  Modal,
+  Text,
+  Provider
 } from "react-native-paper";
 import { connect } from "react-redux";
 
@@ -76,7 +79,8 @@ class HomeScreen extends Component {
       isSpeechPlaying: false,
       isFetching: false,
       results: false,
-      overSettings: false
+      overSettings: false,
+      visibleModal: false,
     };
   }
 
@@ -188,6 +192,10 @@ class HomeScreen extends Component {
 
   _closeMenu = key => this.setState({ [key]: false });
 
+  _showModal = () => this.setState({ visibleModal: true });
+
+  _hideModal = () => this.setState({ visibleModal: false });
+
   _changeLanguages = (key, value, menu = false) => {
     const overSettings = this.state.overSettings;
     overSettings[key] = value;
@@ -216,11 +224,12 @@ class HomeScreen extends Component {
   }
 
   render() {
+      console.log(this.props, '________________--------')
+      console.log(styles, 'STYLE________________--------')
     return (
       <View
         style={[
-          styles.container,
-          { backgroundColor: this.props.theme.colors.surface }
+          styles.containerHome,
         ]}
       >
         <NavigationEvents onWillFocus={() => this._onWillFocus()} />
@@ -299,13 +308,6 @@ class HomeScreen extends Component {
             </View>
           </View>
         </View>
-        <IconButton
-          color={this.props.theme.colors.primary}
-          size={100}
-          icon={this.state.isRecording ? "microphone-off" : "microphone"}
-          animated="true"
-          onPress={() => this._onRecordingPressed()}
-        />
         {this.state.overSettings && (
           <Portal>
             <Dialog
@@ -366,6 +368,38 @@ class HomeScreen extends Component {
             </Dialog>
           </Portal>
         )}
+            <IconButton
+                style={[
+                    {marginBottom: 250}
+                ]}
+                color={this.props.theme.colors.primary}
+                size={100}
+                icon={this.state.isRecording ? "microphone-off" : "microphone"}
+                animated="true"
+                onPress={() => this._onRecordingPressed()}
+            />
+            <Provider>
+                <Portal>
+                    <Button
+                        style={{ backgroundColor: this.props.theme.colors.primary, marginHorizontal: 80, marginTop: 200}}
+                        onPress={this._showModal}
+                    >
+                        Comment ça marche ?
+                    </Button>
+                    <Modal
+                        visible={this.state.visibleModal}
+                        onDismiss={this._hideModal}
+                    >
+                        <Text style={[styles.modalText, { marginTop: 50, fontSize: 26}]}>Pour commencer</Text>
+                        <Text style={styles.modalText }>1. Appuyez sur le micro pour lancer l'enregistrement</Text>
+                        <Text style={styles.modalText }>2. Ré-appuyez sur le micro une fois que vous avez fini de parler pour terminer l'enregistrement</Text>
+
+                        <Text style={[styles.modalText, { marginTop: 50, fontSize: 26}]}>Tool Tip</Text>
+                        <Text style={styles.modalText }>Vous pouvez choisir directement vos langues depuis l'écran d'accueil, cliquez dessus pour voir le menu de choix apparaitre</Text>
+                        <Text style={styles.modalText }>Appuyez prolongé sur un de ces menus pour remettre les valeurs par défaut</Text>
+                    </Modal>
+                </Portal>
+            </Provider>
       </View>
     );
   }

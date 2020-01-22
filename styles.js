@@ -2,13 +2,6 @@ import { StyleSheet } from 'react-native';
 import Constants from 'expo-constants';
 
 export default StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: Constants.statusBarHeight,
-  },
   containerAppBar: {
     flex: 1,
     backgroundColor: '#fff',
@@ -25,7 +18,21 @@ export default StyleSheet.create({
   containerDivide: {
     flex: 1,
     padding: 20,
-  },  
+  },
+  containerHome: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'column-reverse',
+      marginTop: Constants.statusBarHeight,
+  },
+  modalText: {
+    color: '#fff',
+    alignSelf: 'center',
+    marginTop: 20,
+    paddingHorizontal: 20,
+    textAlign: 'center'
+  },
   top: {
     position: 'absolute',
     left: 0,
