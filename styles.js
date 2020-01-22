@@ -20,11 +20,10 @@ export default StyleSheet.create({
     padding: 20,
   },
   containerHome: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-      flexDirection: 'column-reverse',
-      marginTop: Constants.statusBarHeight,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: Constants.statusBarHeight,
   },
   modalText: {
     color: '#fff',

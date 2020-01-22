@@ -11,9 +11,8 @@ import {
   Portal,
   Button,
   Headline,
-  Modal,
-  Text,
-  Provider
+  Divider,
+  Caption
 } from "react-native-paper";
 import { connect } from "react-redux";
 
@@ -80,7 +79,7 @@ class HomeScreen extends Component {
       isFetching: false,
       results: false,
       overSettings: false,
-      visibleModal: false,
+      visibleModal: true
     };
   }
 
@@ -121,7 +120,7 @@ class HomeScreen extends Component {
       this.props.setStorageHistory(
         { ...results, dateTimestamp: +new Date() },
         this.props.settings[2]
-        );
+      );
     } catch (error) {
       console.log(error);
       this._reset();
@@ -192,14 +191,10 @@ class HomeScreen extends Component {
 
   _closeMenu = key => this.setState({ [key]: false });
 
-  _showModal = () => this.setState({ visibleModal: true });
-
-  _hideModal = () => this.setState({ visibleModal: false });
-
   _changeLanguages = (key, value, menu = false) => {
     const overSettings = this.state.overSettings;
     overSettings[key] = value;
-    this.setState({ overSettings })
+    this.setState({ overSettings });
     if (menu) this._closeMenu(menu);
   };
 
@@ -212,7 +207,7 @@ class HomeScreen extends Component {
   _onWillFocus = () => {
     this.props.getSettings();
     this.setState({ overSettings: this.props.settings });
-  }
+  };
 
   async componentDidMount() {
     this.props.getSettings();
@@ -225,11 +220,7 @@ class HomeScreen extends Component {
 
   render() {
     return (
-      <View
-        style={[
-          styles.containerHome,
-        ]}
-      >
+      <View style={[styles.containerHome]}>
         <NavigationEvents onWillFocus={() => this._onWillFocus()} />
         <View style={[styles.containerFixed]}>
           <View style={[styles.containerDivide]}>
@@ -239,7 +230,9 @@ class HomeScreen extends Component {
               <Chip
                 icon="text-to-speech"
                 onPress={() => this._openMenu("from")}
-                onLongPress={() => this._changeLanguages(0, this.props.settings[0])}
+                onLongPress={() =>
+                  this._changeLanguages(0, this.props.settings[0])
+                }
               >
                 {this.state.overSettings[0] && this.state.overSettings[0].name}
               </Chip>
@@ -291,7 +284,9 @@ class HomeScreen extends Component {
                 style={{ alignSelf: "flex-start" }}
                 icon="tooltip-text-outline"
                 onPress={() => this._openMenu("to")}
-                onLongPress={() => this._changeLanguages(1, this.props.settings[1])}
+                onLongPress={() =>
+                  this._changeLanguages(1, this.props.settings[1])
+                }
               >
                 {this.state.overSettings[1] && this.state.overSettings[1].name}
               </Chip>
@@ -306,6 +301,13 @@ class HomeScreen extends Component {
             </View>
           </View>
         </View>
+        <IconButton
+          color={this.props.theme.colors.primary}
+          size={100}
+          icon={this.state.isRecording ? "microphone-off" : "microphone"}
+          animated="true"
+          onPress={() => this._onRecordingPressed()}
+        />
         {this.state.overSettings && (
           <Portal>
             <Dialog
@@ -366,39 +368,90 @@ class HomeScreen extends Component {
             </Dialog>
           </Portal>
         )}
-            <IconButton
-                style={[
-                    {marginBottom: 250}
-                ]}
-                color={this.props.theme.colors.primary}
-                size={100}
-                icon={this.state.isRecording ? "microphone-off" : "microphone"}
-                animated="true"
-                onPress={() => this._onRecordingPressed()}
-            />
-            <Provider>
-                <Portal>
-                    <Modal
-                        visible={this.state.visibleModal}
-                        onDismiss={this._hideModal}
-                        contentContainerStyle={{padding: 25, backgroundColor: 'rgba(0, 0, 0, 0.6)'}}
-                    >
-                        <Text style={[styles.modalText, { marginTop: 50, fontSize: 26, color: this.props.theme.colors.primary}]}>Pour commencer</Text>
-                        <Text style={styles.modalText }>1. Appuyez sur le micro pour lancer l'enregistrement</Text>
-                        <Text style={styles.modalText }>2. Ré-appuyez sur le micro une fois que vous avez fini de parler pour terminer l'enregistrement</Text>
-
-                        <Text style={[styles.modalText, { marginTop: 50, fontSize: 26, color: this.props.theme.colors.primary}]}>Tool Tip</Text>
-                        <Text style={styles.modalText }>Vous pouvez choisir directement vos langues depuis l'écran d'accueil, cliquez dessus pour voir le menu de choix apparaitre</Text>
-                        <Text style={styles.modalText }>Appuyez prolongé sur un de ces menus pour remettre les valeurs par défaut</Text>
-                    </Modal>
-                    <Button
-                        style={{ backgroundColor: this.props.theme.colors.primary, marginHorizontal: 80, marginTop: 175}}
-                        onPress={this._showModal}
-                    >
-                        Comment ça marche ?
-                    </Button>
-                </Portal>
-            </Provider>
+        <Portal>
+          <Dialog
+            visible={this.state.visibleModal}
+            onDismiss={() => this._closeMenu("visibleModal")}
+            style={{ maxHeight: 700 }}
+          >
+            <ScrollView>
+              <Dialog.Title>Comment ça marche ?</Dialog.Title>
+              <Dialog.Content>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <IconButton
+                    icon="microphone"
+                    size={40}
+                    color={this.props.theme.colors.primary}
+                  />
+                  <View style={{ flex: 1 }}>
+                    <Paragraph>Pour lancer l'enregistrement</Paragraph>
+                    <Caption>Appuyez sur le micro</Caption>
+                  </View>
+                </View>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <IconButton
+                    icon="microphone-off"
+                    size={40}
+                    color={this.props.theme.colors.primary}
+                  />
+                  <View style={{ flex: 1 }}>
+                    <Paragraph>Pour terminer l'enregistrement</Paragraph>
+                    <Caption>Ré-appuyez sur le micro</Caption>
+                  </View>
+                </View>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <Chip icon="text-to-speech" style={{ margin: 10 }}>
+                    -
+                  </Chip>
+                  <View style={{ flex: 1 }}>
+                    <Paragraph>Pour changer rapidement de langue</Paragraph>
+                    <Caption>Appuyez sur le bouton</Caption>
+                  </View>
+                </View>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <Chip icon="tooltip-text-outline" style={{ margin: 10 }}>
+                    -
+                  </Chip>
+                  <View style={{ flex: 1 }}>
+                    <Paragraph>Pour remettre la langue par défaut</Paragraph>
+                    <Caption>Appuyez longuemnt sur le bouton</Caption>
+                  </View>
+                </View>
+              </Dialog.Content>
+              <Divider />
+              <Dialog.Title>Nos écrans</Dialog.Title>
+              <Dialog.Content>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <IconButton
+                    icon="history"
+                    size={40}
+                    color={this.props.theme.colors.placeholder}
+                  />
+                  <View style={{ flex: 1 }}>
+                    <Paragraph>Historique</Paragraph>
+                    <Caption>Retrouvez la liste de vos traductions</Caption>
+                  </View>
+                </View>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <IconButton
+                    icon="settings"
+                    size={40}
+                    color={this.props.theme.colors.placeholder}
+                  />
+                  <View style={{ flex: 1 }}>
+                    <Paragraph>Réglages</Paragraph>
+                    <Caption>Paramètrer vos valeurs par défauts</Caption>
+                  </View>
+                </View>
+              </Dialog.Content>
+            </ScrollView>
+            <Dialog.Actions>
+              <Button onPress={() => this._closeMenu("visibleModal")}>
+                J'ai compris
+              </Button>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
       </View>
     );
   }
@@ -414,7 +467,8 @@ const mapDispatchtoProps = dispatch => {
   return {
     getSettings: () => dispatch(getStorageSettings()),
     setSettings: settings => dispatch(setStorageSettings(settings)),
-    setStorageHistory: (history, max) => dispatch(setStorageHistory(history, max))
+    setStorageHistory: (history, max) =>
+      dispatch(setStorageHistory(history, max))
   };
 };
 
