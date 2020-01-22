@@ -30,7 +30,7 @@ class SettingsScreen extends Component {
     this.state = {
       from: false,
       to: false,
-      history: false,
+      history: false
     };
   }
 
@@ -105,7 +105,11 @@ class SettingsScreen extends Component {
                     ({ code, name }) => (
                       <Button
                         key={code}
-                        color={this.props.settings[0].code == code ? this.props.theme.colors.accent : this.props.theme.colors.primary }
+                        color={
+                          this.props.settings[0].code == code
+                            ? this.props.theme.colors.accent
+                            : this.props.theme.colors.primary
+                        }
                         onPress={() =>
                           this._changeLanguages(0, { code, name }, "from")
                         }
@@ -129,7 +133,11 @@ class SettingsScreen extends Component {
                     ({ code, name }) => (
                       <Button
                         key={code}
-                        color={this.props.settings[1].code == code ? this.props.theme.colors.accent : this.props.theme.colors.primary }
+                        color={
+                          this.props.settings[1].code == code
+                            ? this.props.theme.colors.accent
+                            : this.props.theme.colors.primary
+                        }
                         onPress={() =>
                           this._changeLanguages(1, { code, name }, "to")
                         }
@@ -149,19 +157,19 @@ class SettingsScreen extends Component {
             >
               <Dialog.Actions>
                 <ScrollView style={{ maxHeight: 500 }}>
-                  {historyParams.map(
-                    num => (
-                      <Button
-                        key={num}
-                        color={this.props.settings[2] == num ? this.props.theme.colors.accent : this.props.theme.colors.primary }
-                        onPress={() =>
-                          this._changeLanguages(2, num, "history")
-                        }
-                      >
-                        {num}
-                      </Button>
-                    )
-                  )}
+                  {historyParams.map(num => (
+                    <Button
+                      key={num}
+                      color={
+                        this.props.settings[2] == num
+                          ? this.props.theme.colors.accent
+                          : this.props.theme.colors.primary
+                      }
+                      onPress={() => this._changeLanguages(2, num, "history")}
+                    >
+                      {num}
+                    </Button>
+                  ))}
                 </ScrollView>
               </Dialog.Actions>
             </Dialog>

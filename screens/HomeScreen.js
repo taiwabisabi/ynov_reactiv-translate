@@ -1,20 +1,24 @@
 import React, { Component } from "react";
-import { View } from "react-native";
+import { View, ScrollView } from "react-native";
 import { NavigationEvents } from "react-navigation";
 import {
   withTheme,
   IconButton,
   Chip,
   Paragraph,
-  ActivityIndicator
+  ActivityIndicator,
+  Dialog,
+  Portal,
+  Button,
+  Headline
 } from "react-native-paper";
 import { connect } from "react-redux";
 
 import { Audio } from "expo-av";
 import * as Permissions from "expo-permissions";
-import * as Speech from 'expo-speech';
+import * as Speech from "expo-speech";
 
-import ApiTranslate from '../services/ApiTranslate';
+import ApiTranslate from "../services/ApiTranslate";
 
 import styles from "../styles";
 import {
@@ -23,20 +27,18 @@ import {
 } from "../availableLanguages";
 import {
   getStorageSettings,
-  setStorageSettings,
+  setStorageSettings
 } from "../redux/actions/settingsActions";
-import {
-  setStorageHistory
-} from "../redux/actions/historyActions";
+import { setStorageHistory } from "../redux/actions/historyActions";
 
 const recordingOptions = {
   android: {
-    extension: '.amr',
+    extension: ".amr",
     outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_AMR_WB,
     audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_AMR_WB,
     sampleRate: 44100,
     numberOfChannels: 1,
-    bitRate: 128000,
+    bitRate: 128000
   },
   ios: {
     extension: ".wav",
@@ -74,10 +76,12 @@ class HomeScreen extends Component {
       isSpeechPlaying: false,
       isFetching: false,
       results: false,
+      overSettings: false
     };
   }
 
   _beginRecording = async () => {
+    this._reset();
     const recording = new Audio.Recording();
     try {
       await Audio.setAudioModeAsync(audioSettings);
@@ -89,8 +93,9 @@ class HomeScreen extends Component {
       });
     } catch (error) {
       console.log(error);
+      this._reset();
     }
-  }
+  };
 
   _stopRecording = async () => {
     this.setState({ isRecording: false });
@@ -103,27 +108,34 @@ class HomeScreen extends Component {
     this.setState({ isFetching: true });
     const uri = this.recording.getURI();
     try {
-      const { data: results } = await this.ApiTranslate.getTranslate(uri, this.props.settings);
+      const { data: results } = await this.ApiTranslate.getTranslate(
+        uri,
+        this.state.overSettings
+      );
       this.setState({ isFetching: false });
       this.setState({ results });
-      this.props.setStorageHistory({...results, dateTimestamp: + new Date()}, this.props.settings[2]);
+      this.props.setStorageHistory(
+        { ...results, dateTimestamp: +new Date() },
+        this.state.overSettings[2]
+      );
     } catch (error) {
       console.log(error);
-      this.setState({ isFetching: false });
+      this._reset();
     }
 
     await this._createSound(uri);
     this._onSpeechPlayStopPressed();
-  }
+  };
 
   _createSound = async uri => {
     const soundObject = new Audio.Sound();
     try {
-      await soundObject.loadAsync({uri});
+      await soundObject.loadAsync({ uri });
       soundObject.setIsLoopingAsync(true);
       this.sound = soundObject;
     } catch (error) {
       console.log(error);
+      this._reset();
     }
   };
 
@@ -172,8 +184,26 @@ class HomeScreen extends Component {
     }
   };
 
+  _openMenu = key => this.setState({ [key]: true });
+
+  _closeMenu = key => this.setState({ [key]: false });
+
+  _changeLanguages = (key, value, menu = false) => {
+    const overSettings = this.state.overSettings;
+    overSettings[key] = value;
+    this.setState({ overSettings })
+    if (menu) this._closeMenu(menu);
+  };
+
+  _reset = () => {
+    this.setState({ results: false, isFetching: false, isRecording: false });
+    if (this.state.isSoundPlaying) this._onSoundPlayStopPressed();
+    if (this.state.isSpeechPlaying) this._onSpeechPlayStopPressed();
+  };
+
   async componentDidMount() {
     this.props.getSettings();
+    this.setState({ overSettings: this.props.settings })
     const res = await Permissions.askAsync(Permissions.AUDIO_RECORDING);
     this.setState({
       haveRecordingPermissions: res.status === "granted"
@@ -191,19 +221,24 @@ class HomeScreen extends Component {
         <NavigationEvents onWillFocus={() => this.props.getSettings()} />
         <View style={[styles.containerFixed]}>
           <View style={[styles.containerDivide]}>
-            <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-              <Chip icon="text-to-speech">
-                {this.props.settings[0] && this.props.settings[0].name}
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-between" }}
+            >
+              <Chip
+                icon="text-to-speech"
+                onPress={() => this._openMenu("from")}
+                onLongPress={() => this._changeLanguages(0, this.props.settings[0])}
+              >
+                {this.state.overSettings[0] && this.state.overSettings[0].name}
               </Chip>
-              {
-                this.state.results && (
-                  <Chip
-                    icon={this.state.isSoundPlaying ? "stop" : "play"}
-                    onPress={this._onSoundPlayStopPressed}>
-                    {this.state.isSoundPlaying ? "Stop" : "Play"}
-                  </Chip>
-                )
-              }
+              {this.state.results && (
+                <Chip
+                  icon={this.state.isSoundPlaying ? "stop" : "play"}
+                  onPress={this._onSoundPlayStopPressed}
+                >
+                  {this.state.isSoundPlaying ? "Stop" : "Play"}
+                </Chip>
+              )}
             </View>
             <View style={{ padding: 10, alignItems: "flex-start" }}>
               {this.state.isFetching ? (
@@ -212,9 +247,11 @@ class HomeScreen extends Component {
                   color={this.props.theme.colors.primary}
                 />
               ) : (
-                <Paragraph>
-                  {this.state.results && this.state.results.from.text}
-                </Paragraph>
+                <ScrollView>
+                  <Paragraph>
+                    {this.state.results && this.state.results.from.text}
+                  </Paragraph>
+                </ScrollView>
               )}
             </View>
           </View>
@@ -228,27 +265,32 @@ class HomeScreen extends Component {
                   color={this.props.theme.colors.primary}
                 />
               ) : (
-                <Paragraph>
-                  {this.state.results && this.state.results.to.text}
-                </Paragraph>
+                <ScrollView>
+                  <Headline>
+                    {this.state.results && this.state.results.to.text}
+                  </Headline>
+                </ScrollView>
               )}
             </View>
-            <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-between" }}
+            >
               <Chip
                 style={{ alignSelf: "flex-start" }}
                 icon="tooltip-text-outline"
+                onPress={() => this._openMenu("to")}
+                onLongPress={() => this._changeLanguages(1, this.props.settings[1])}
               >
-                {this.props.settings[1] && this.props.settings[1].name}
+                {this.state.overSettings[1] && this.state.overSettings[1].name}
               </Chip>
-              {
-                this.state.results && (
-                  <Chip
-                    icon={this.state.isSpeechPlaying ? "stop" : "play"}
-                    onPress={this._onSpeechPlayStopPressed}>
-                    {this.state.isSpeechPlaying ? "Stop" : "Play"}
-                  </Chip>
-                )
-              }
+              {this.state.results && (
+                <Chip
+                  icon={this.state.isSpeechPlaying ? "stop" : "play"}
+                  onPress={this._onSpeechPlayStopPressed}
+                >
+                  {this.state.isSpeechPlaying ? "Stop" : "Play"}
+                </Chip>
+              )}
             </View>
           </View>
         </View>
@@ -259,6 +301,66 @@ class HomeScreen extends Component {
           animated="true"
           onPress={() => this._onRecordingPressed()}
         />
+        {this.state.overSettings && (
+          <Portal>
+            <Dialog
+              visible={this.state.from}
+              onDismiss={() => this._closeMenu("from")}
+            >
+              <Dialog.Actions>
+                <ScrollView style={{ maxHeight: 500 }}>
+                  {googleSpeechToTextApiAvailableLanguages.map(
+                    ({ code, name }) => (
+                      <Button
+                        key={code}
+                        color={
+                          this.state.overSettings[0].code == code
+                            ? this.props.theme.colors.accent
+                            : this.props.theme.colors.primary
+                        }
+                        onPress={() =>
+                          this._changeLanguages(0, { code, name }, "from")
+                        }
+                      >
+                        {name}
+                      </Button>
+                    )
+                  )}
+                </ScrollView>
+              </Dialog.Actions>
+            </Dialog>
+          </Portal>
+        )}
+        {this.state.overSettings && (
+          <Portal>
+            <Dialog
+              visible={this.state.to}
+              onDismiss={() => this._closeMenu("to")}
+            >
+              <Dialog.Actions>
+                <ScrollView style={{ maxHeight: 500 }}>
+                  {googleTranslateApiAvailableLanguages.map(
+                    ({ code, name }) => (
+                      <Button
+                        key={code}
+                        color={
+                          this.state.overSettings[1].code == code
+                            ? this.props.theme.colors.accent
+                            : this.props.theme.colors.primary
+                        }
+                        onPress={() =>
+                          this._changeLanguages(1, { code, name }, "to")
+                        }
+                      >
+                        {name}
+                      </Button>
+                    )
+                  )}
+                </ScrollView>
+              </Dialog.Actions>
+            </Dialog>
+          </Portal>
+        )}
       </View>
     );
   }
