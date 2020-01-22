@@ -1,117 +1,90 @@
-import React, { Component } from 'react';
-import { View, ScrollView } from 'react-native';
+import React, { Component } from "react";
+import { View, ScrollView } from "react-native";
 import { connect } from "react-redux";
-import { withTheme, Appbar, Title, List, Button, Dialog, Portal, RadioButton, Text} from 'react-native-paper';
-import styles from '../styles';
-import { getStorageHistory } from '../redux/actions/historyActions';
+import {
+  withTheme,
+  Appbar,
+  Title,
+  Card,
+  Subheading,
+  Badge,
+  Divider,
+  Text,
+  Headline, 
+  Caption
+} from "react-native-paper";
+import moment from "moment";
+import "moment/locale/fr";
+import styles from "../styles";
+import { getStorageHistory } from "../redux/actions/historyActions";
+
+const ListCard = props => (
+  props.list.map((item, i) => (
+    <View key={i} style={{ marginBottom: 15 }}>
+      <Caption>{ moment(item.dateTimestamp).format('[Le] Do MMMM YYYY [à] h:mm:ss') }</Caption>
+      <Card>
+        <Card.Content>
+          <Badge style={{ paddingHorizontal: 10, textTransform: 'uppercase' }}>{ item.from.lang.slice(0, 2) }</Badge>
+          <Text>{item.from.text}</Text>
+          <Divider style={{ marginBottom: 10, marginTop: 15 }} />
+          <Headline>{item.to.text}</Headline>
+          <Badge style={{ paddingHorizontal: 10, textTransform: 'uppercase' }}>{ item.to.lang.slice(0, 2) }</Badge>
+        </Card.Content>
+      </Card>
+    </View>
+  ))
+);
 
 class HistoryScreen extends Component {
-    state = {
-        visible: false,
-        value: '10'
+  constructor(props) {
+    super(props);
+    moment().locale('fr');
+    this.state = {
+      visible: false,
+      value: "10"
     };
+  }
 
-    _showDialog = () => this.setState({ visible: true });
-    _hideDialog = () => this.setState({ visible: false });
+  componentDidMount() {
+    this.props.getHistory();
+  }
 
-    _generateListItem = () => {
-        let history = this.props.history.slice().reverse();
-        return history.map((e, index) => {
-            if(index < this.state.value)
-                return <List.Item
-                    key={index}
-                    titleStyle={[ {color: this.props.theme.colors.primary} ]}
-                    title={e.from.text}
-                    descriptionNumberOfLines={4}
-                    description={e.to.text +'\n'+ e.from.lang.slice(0, 2) + ' -> ' + e.to.lang.slice(0, 2) + '\n' + e.dateTimeTranslation}
-                    left={() => <List.Icon icon="translate" />}
-                />
-        });
-    };
-
-    componentDidMount() {
-        this.props.getHistory();
-    }
-
-    render() {
-        return (
-            <View
-                style={[
-                styles.containerAppBar,
-                { backgroundColor: this.props.theme.colors.surface }
-            ]}>
-                <Appbar style={styles.top}>
-                    <Title>Historique</Title>
-                </Appbar>
-                <View>
-                    <Button onPress={this._showDialog}>Afficher par : {this.state.value}</Button>
-
-                    <Portal>
-                        <Dialog visible={this.state.visible} onDismiss={this._hideDialog}>
-                            <Dialog.Title style={[
-                                { color: this.props.theme.colors.primary }
-                            ]}>Combien de résultats souhaitez-vous afficher ?</Dialog.Title>
-
-                            <Dialog.Content>
-                                <RadioButton.Group
-                                    onValueChange={value => this.setState({ value })}
-                                    value={this.state.value}
-                                >
-                                    <View>
-                                        <Text>10</Text>
-                                        <RadioButton value='10' />
-                                    </View>
-                                    <View>
-                                        <Text>20</Text>
-                                        <RadioButton value='20' />
-                                    </View>
-                                    <View>
-                                        <Text>30</Text>
-                                        <RadioButton value='30' />
-                                    </View>
-                                    <View>
-                                        <Text>40</Text>
-                                        <RadioButton value='40' />
-                                    </View>
-                                    <View>
-                                        <Text>50</Text>
-                                        <RadioButton value='50' />
-                                    </View>
-                                </RadioButton.Group>
-                            </Dialog.Content>
-
-                            <Dialog.Actions>
-                                <Button onPress={this._hideDialog}>Done</Button>
-                            </Dialog.Actions>
-                        </Dialog>
-                    </Portal>
-
-                </View>
-                <List.Section>
-                    <List.Subheader>Mes dernières traductions</List.Subheader>
-                    <ScrollView>
-                        {this._generateListItem()}
-                    </ScrollView>
-                </List.Section>
-            </View>
-        );
-    }
+  render() {
+    return (
+      <View
+        style={[
+          styles.containerAppBar,
+          { backgroundColor: this.props.theme.colors.surface }
+        ]}
+      >
+        <Appbar style={styles.top}>
+          <Title>Historique</Title>
+        </Appbar>
+        <ScrollView style={styles.padding}>
+        {
+          this.props.history.length > 0 
+            ? <ListCard list={this.props.history} /> 
+            : <Subheading>Vore historique est vide.</Subheading> 
+        }
+        </ScrollView>
+      </View>
+    );
+  }
 }
 
-
 const mapStateToProps = ({ historyReducer }) => {
-    return {
-      history: historyReducer.history
-    };
+  return {
+    history: historyReducer.history
+  };
 };
 
 const mapDispatchtoProps = dispatch => {
-    return {
-      getHistory: () => dispatch(getStorageHistory()),
-    };
+  return {
+    getHistory: () => dispatch(getStorageHistory())
   };
+};
 
 export default connect(
-    mapStateToProps,
-    mapDispatchtoProps
+  mapStateToProps,
+  mapDispatchtoProps
 )(withTheme(HistoryScreen));

@@ -38,6 +38,10 @@ export default StyleSheet.create({
     marginHorizontal: 20,
     marginTop: 20,
   },
+  padding: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
   menuSettingContent: {
     marginLeft: 20,
     marginTop: 50,

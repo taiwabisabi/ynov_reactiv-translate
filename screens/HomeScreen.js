@@ -106,8 +106,7 @@ class HomeScreen extends Component {
       const { data: results } = await this.ApiTranslate.getTranslate(uri, this.props.settings);
       this.setState({ isFetching: false });
       this.setState({ results });
-      let dateTimeTranslation = this._formatDate();
-      this.props.setStorageHistory({...results, dateTimeTranslation})
+      this.props.setStorageHistory({...results, dateTimestamp: + new Date()}, this.props.settings[2]);
     } catch (error) {
       console.log(error);
       this.setState({ isFetching: false });
@@ -115,20 +114,6 @@ class HomeScreen extends Component {
 
     await this._createSound(uri);
     this._onSpeechPlayStopPressed();
-  }
-
-  _formatDate = () => {
-    let date = new Date();
-    const monthNames = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin","Juillet", "Août", "Septembre", "Octobre", "Novembre","Decembre"];
-    let years = date.getFullYear();
-    let months = monthNames[date.getMonth()];
-    let days = date.getDate() <= 9 ? `0${date.getDate()}` : date.getDate();
-    let hours = date.getHours() <= 9 ? `0${date.getHours()}` : date.getHours();
-    let minutes = date.getMinutes() <= 9 ? `0${date.getMinutes()}` : date.getMinutes();
-    let seconds = date.getSeconds() <= 9 ? `0${date.getSeconds()}` : date.getSeconds();
-
-    let dateFormated = `le ${days} ${months} ${years} à ${hours}:${minutes}:${seconds}`;
-    return dateFormated;
   }
 
   _createSound = async uri => {

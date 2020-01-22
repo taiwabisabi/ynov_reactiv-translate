@@ -16,11 +16,12 @@ export const getStorageHistory = () => {
   };
 };
 
-export const setStorageHistory = history => {
+export const setStorageHistory = (history, max) => {
   return async dispatch => {
     const data = await AsyncStorage.getItem(STORAGE_KEY);
-    const storageHistory = JSON.parse(data) || [];
-    storageHistory.push(history);
+    let storageHistory = JSON.parse(data) || [];
+    storageHistory.unshift(history);
+    storageHistory = storageHistory.slice(0, max);
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(storageHistory));
     dispatch(setHistory(storageHistory));
   };
