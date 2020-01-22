@@ -10,7 +10,8 @@ const INITIAL_STATE = [
   {
     code: "en",
     name: "English"
-  }
+  },
+  40
 ];
 
 export const setSettings = settings => ({

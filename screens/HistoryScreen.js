@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, ScrollView } from 'react-native';
+import { View, ScrollView } from 'react-native';
+import { connect } from "react-redux";
 import { withTheme, Appbar, Title, List, Button, Dialog, Portal, RadioButton, Text} from 'react-native-paper';
 import styles from '../styles';
-import { connect } from "react-redux";
+import { getStorageHistory } from '../redux/actions/historyActions';
 
 class HistoryScreen extends Component {
     state = {
@@ -26,6 +27,10 @@ class HistoryScreen extends Component {
                     left={() => <List.Icon icon="translate" />}
                 />
         });
+    };
+
+    componentDidMount() {
+        this.props.getHistory();
     }
 
     render() {
@@ -36,7 +41,7 @@ class HistoryScreen extends Component {
                 { backgroundColor: this.props.theme.colors.surface }
             ]}>
                 <Appbar style={styles.top}>
-                    <Title>History</Title>
+                    <Title>Historique</Title>
                 </Appbar>
                 <View>
                     <Button onPress={this._showDialog}>Afficher par : {this.state.value}</Button>
@@ -82,7 +87,7 @@ class HistoryScreen extends Component {
                     </Portal>
 
                 </View>
-                <List.Section style={[styles.margin, { paddingHorizontal: 10 }, {marginBottom: 100}]}>
+                <List.Section>
                     <List.Subheader>Mes dernières traductions</List.Subheader>
                     <ScrollView>
                         {this._generateListItem()}
@@ -100,6 +105,13 @@ const mapStateToProps = ({ historyReducer }) => {
     };
 };
 
+const mapDispatchtoProps = dispatch => {
+    return {
+      getHistory: () => dispatch(getStorageHistory()),
+    };
+  };
+
 export default connect(
     mapStateToProps,
+    mapDispatchtoProps
 )(withTheme(HistoryScreen));

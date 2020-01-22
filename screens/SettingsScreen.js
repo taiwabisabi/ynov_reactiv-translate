@@ -22,12 +22,15 @@ import {
   setStorageSettings
 } from "../redux/actions/settingsActions";
 
+const historyParams = [5, 10, 20, 30, 40, 50];
+
 class SettingsScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
       from: false,
-      to: false
+      to: false,
+      history: false,
     };
   }
 
@@ -81,17 +84,28 @@ class SettingsScreen extends Component {
               {this.props.settings[1] && this.props.settings[1].name}
             </Button>
           </View>
+          <View style={styles.margin}>
+            <Caption>Nombre de traduction enregistrées</Caption>
+            <Button
+              icon="history"
+              mode="contained"
+              onPress={() => this._openMenu("history")}
+            >
+              {this.props.settings[2] && this.props.settings[2]}
+            </Button>
+          </View>
           <Portal>
             <Dialog
               visible={this.state.from}
               onDismiss={() => this._closeMenu("from")}
             >
               <Dialog.Actions>
-                <ScrollView style={{ height: 500 }}>
+                <ScrollView style={{ maxHeight: 500 }}>
                   {googleSpeechToTextApiAvailableLanguages.map(
                     ({ code, name }) => (
                       <Button
                         key={code}
+                        color={this.props.settings[0].code == code ? this.props.theme.colors.accent : this.props.theme.colors.primary }
                         onPress={() =>
                           this._changeLanguages(0, { code, name }, "from")
                         }
@@ -110,16 +124,41 @@ class SettingsScreen extends Component {
               onDismiss={() => this._closeMenu("to")}
             >
               <Dialog.Actions>
-                <ScrollView style={{ height: 500 }}>
+                <ScrollView style={{ maxHeight: 500 }}>
                   {googleTranslateApiAvailableLanguages.map(
                     ({ code, name }) => (
                       <Button
                         key={code}
+                        color={this.props.settings[1].code == code ? this.props.theme.colors.accent : this.props.theme.colors.primary }
                         onPress={() =>
                           this._changeLanguages(1, { code, name }, "to")
                         }
                       >
                         {name}
+                      </Button>
+                    )
+                  )}
+                </ScrollView>
+              </Dialog.Actions>
+            </Dialog>
+          </Portal>
+          <Portal>
+            <Dialog
+              visible={this.state.history}
+              onDismiss={() => this._closeMenu("history")}
+            >
+              <Dialog.Actions>
+                <ScrollView style={{ maxHeight: 500 }}>
+                  {historyParams.map(
+                    num => (
+                      <Button
+                        key={num}
+                        color={this.props.settings[2] == num ? this.props.theme.colors.accent : this.props.theme.colors.primary }
+                        onPress={() =>
+                          this._changeLanguages(2, num, "history")
+                        }
+                      >
+                        {num}
                       </Button>
                     )
                   )}
