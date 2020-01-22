@@ -79,7 +79,8 @@ class HomeScreen extends Component {
       isFetching: false,
       results: false,
       overSettings: false,
-      visibleModal: true
+      onBoardingModal: true,
+      errorModal: false,
     };
   }
 
@@ -115,19 +116,23 @@ class HomeScreen extends Component {
         uri,
         this.state.overSettings
       );
-      this.setState({ isFetching: false });
-      this.setState({ results });
-      this.props.setStorageHistory(
-        { ...results, dateTimestamp: +new Date() },
-        this.props.settings[2]
-      );
+      if (results.from.text) {
+        this.setState({ isFetching: false });
+        this.setState({ results });
+        this.props.setStorageHistory(
+          { ...results, dateTimestamp: +new Date() },
+          this.props.settings[2]
+        );
+        await this._createSound(uri);
+        this._onSpeechPlayStopPressed();
+      } else {
+        this._reset();
+        this._openMenu('errorModal');
+      }
     } catch (error) {
       console.log(error);
       this._reset();
     }
-
-    await this._createSound(uri);
-    this._onSpeechPlayStopPressed();
   };
 
   _createSound = async uri => {
@@ -370,8 +375,8 @@ class HomeScreen extends Component {
         )}
         <Portal>
           <Dialog
-            visible={this.state.visibleModal}
-            onDismiss={() => this._closeMenu("visibleModal")}
+            visible={this.state.onBoardingModal}
+            onDismiss={() => this._closeMenu("onBoardingModal")}
             style={{ maxHeight: 700 }}
           >
             <ScrollView>
@@ -418,7 +423,7 @@ class HomeScreen extends Component {
                   </View>
                 </View>
               </Dialog.Content>
-              <Divider />
+              <Divider style={{ marginHorizontal: 20 }}/>
               <Dialog.Title>Nos écrans</Dialog.Title>
               <Dialog.Content>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -445,9 +450,37 @@ class HomeScreen extends Component {
                 </View>
               </Dialog.Content>
             </ScrollView>
+            <Divider />
             <Dialog.Actions>
-              <Button onPress={() => this._closeMenu("visibleModal")}>
+              <Button onPress={() => this._closeMenu("onBoardingModal")}>
                 J'ai compris
+              </Button>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
+        <Portal>
+          <Dialog
+            visible={this.state.errorModal}
+            onDismiss={() => this._closeMenu("errorModal")}
+            style={{ maxHeight: 700 }}
+          >
+            <Dialog.Content>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <IconButton
+                  icon="comment-alert"
+                  size={40}
+                  color={this.props.theme.colors.placeholder}
+                />
+                <View style={{ flex: 1 }}>
+                  <Paragraph>Parler plus fort</Paragraph>
+                  <Caption>Une erreur est survenue</Caption>
+                </View>
+              </View>
+            </Dialog.Content>
+            <Divider />
+            <Dialog.Actions>
+              <Button onPress={() => this._closeMenu("errorModal")}>
+                C'est parti
               </Button>
             </Dialog.Actions>
           </Dialog>
