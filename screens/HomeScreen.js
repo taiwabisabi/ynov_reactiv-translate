@@ -401,7 +401,7 @@ class HomeScreen extends Component {
                   />
                   <View style={{ flex: 1 }}>
                     <Paragraph>Pour terminer l'enregistrement</Paragraph>
-                    <Caption>Ré-appuyez sur le micro</Caption>
+                    <Caption>Ré-appuyer sur le micro</Caption>
                   </View>
                 </View>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -410,7 +410,7 @@ class HomeScreen extends Component {
                   </Chip>
                   <View style={{ flex: 1 }}>
                     <Paragraph>Pour changer rapidement de langue</Paragraph>
-                    <Caption>Appuyez sur le bouton</Caption>
+                    <Caption>Appuyer sur le bouton</Caption>
                   </View>
                 </View>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -419,7 +419,7 @@ class HomeScreen extends Component {
                   </Chip>
                   <View style={{ flex: 1 }}>
                     <Paragraph>Pour remettre la langue par défaut</Paragraph>
-                    <Caption>Appuyez longuemnt sur le bouton</Caption>
+                    <Caption>Appuyer prolongé sur le bouton</Caption>
                   </View>
                 </View>
               </Dialog.Content>
@@ -434,7 +434,7 @@ class HomeScreen extends Component {
                   />
                   <View style={{ flex: 1 }}>
                     <Paragraph>Historique</Paragraph>
-                    <Caption>Retrouvez la liste de vos traductions</Caption>
+                    <Caption>Retrouver la liste de vos traductions</Caption>
                   </View>
                 </View>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -445,7 +445,7 @@ class HomeScreen extends Component {
                   />
                   <View style={{ flex: 1 }}>
                     <Paragraph>Réglages</Paragraph>
-                    <Caption>Paramètrer vos valeurs par défauts</Caption>
+                    <Caption>Paramétrer vos valeurs par défauts</Caption>
                   </View>
                 </View>
               </Dialog.Content>
